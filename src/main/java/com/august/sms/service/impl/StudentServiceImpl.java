@@ -2,6 +2,9 @@ package com.august.sms.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.august.sms.models.Student;
@@ -42,6 +45,14 @@ public class StudentServiceImpl implements StudentService
     public Student getStudentById(Long id) {
         return studentRepo.findById(id).get();
     }
+
+    @Override
+    public Page<Student> findPaginated(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        return this.studentRepo.findAll(pageable);
+    }
+
+    
 
     
 }

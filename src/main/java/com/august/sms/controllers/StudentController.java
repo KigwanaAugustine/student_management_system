@@ -2,6 +2,7 @@ package com.august.sms.controllers;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,6 +20,42 @@ import lombok.AllArgsConstructor;
 public class StudentController {
     private StudentService studentService;
 
+
+    // listing paginated students
+    @GetMapping("/page/{pageNo}")
+     public ModelAndView paginatedStudents(@PathVariable (value = "pageNo") int pageNo, ModelAndView mv)
+     {
+        mv.setViewName("students");
+        
+        int pageSize = 5;
+        
+        //create a page object for the current view
+        Page<Student> page = studentService.findPaginated(pageNo, pageSize);
+        
+        //bind data the relevant data to this page object
+        List<Student> listStudents = page.getContent();
+
+        //add the necessary attributes for the view
+        mv.addObject("listStudents", listStudents);
+        mv.addObject("currentPage", pageNo);
+        mv.addObject("totalPages", page.getTotalPages());
+        mv.addObject("totalItems", page.getTotalElements());
+        
+        return mv;
+    }
+
+    //show the home page
+    @GetMapping("/")
+    public ModelAndView viewHomePage(ModelAndView mv)
+    {
+        mv.setViewName("students");
+
+        paginatedStudents(1, mv);
+
+        return mv;
+    }
+
+
     // handler method to list all students and return model and view
     @GetMapping("/students")
     public ModelAndView listStudents(ModelAndView mv) {
@@ -30,11 +67,15 @@ public class StudentController {
 
         return mv;
     }
+
     
+
+
+    //adding a new student
     @PostMapping("/students")
     public String saveStudent(Student student) {
         studentService.saveStudent(student);
-        return "redirect:/students";
+        return "redirect:/";
     }
     
 
@@ -77,7 +118,7 @@ public class StudentController {
         //save updated student object
         studentService.saveStudent(existingStudent);
 
-        return "redirect:/students";
+        return "redirect:/";
     }
 
 
@@ -86,7 +127,7 @@ public class StudentController {
     {
         studentService.deleteStudent(id);
 
-        return "redirect:/students";
+        return "redirect:/";
     }
 
 }
